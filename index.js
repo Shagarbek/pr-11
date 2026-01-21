@@ -16,9 +16,30 @@ const ItemSchema = new mongoose.Schema({
 
 const Item = mongoose.model('Item', ItemSchema);
 
-app.get('/', (req, res) => {
-  res.json({ message: 'API is running' });
+app.get('/', async (req, res) => {
+  const items = await Item.find().limit(10);
+
+  const list = items.length
+    ? items.map(i => `<li><a href="/api/items/${i._id}">/api/items/${i._id}</a> — ${i.name} (${i.price})</li>`).join('')
+    : `<li>No items yet. Create one via POST /api/items</li>`;
+
+  res.send(`
+    <html>
+      <head>
+        <title>Shop API</title>
+      </head>
+      <body>
+        <h1>Shop API</h1>
+        <ul>
+          <li><a href="/api/items">/api/items</a></li>
+          ${list}
+        </ul>
+      </body>
+    </html>
+  `);
 });
+
+
 
 app.get('/api/items', async (req, res) => {
   const items = await Item.find();
